@@ -7,7 +7,12 @@ public enum Rule {
 	Plus(""),
 	Elemental(""),
 	Sudden_Death(""),
-	Same_Wall("");
+	Same_Wall(""),
+	Random(""),
+	Direct(""),
+	Diff(""),
+	One(""),
+	All("");
 	
 	private String ruleText;
 

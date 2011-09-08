@@ -6,5 +6,9 @@ public interface IBattlePlayer {
 
 	public IBattleCard[] getCards();
 
+	public IBattleCard[] getOpponentCards();
+	
+	public IBoardSquare[] getBoardSquares();
+	
 	public boolean playCard(int pCardNumInHand, int pSquareNumber);
 }

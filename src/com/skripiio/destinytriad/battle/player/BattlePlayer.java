@@ -1,5 +1,9 @@
-package com.skripiio.destinytriad.battle.engine;
+package com.skripiio.destinytriad.battle.player;
 
+import com.skripiio.destinytriad.battle.engine.BattleEngine;
+import com.skripiio.destinytriad.battle.engine.IBattlePlayer;
+import com.skripiio.destinytriad.battle.engine.IBoardSquare;
+import com.skripiio.destinytriad.battle.rules.Rule;
 import com.skripiio.destinytriad.card.Card;
 
 public class BattlePlayer implements IBattlePlayer {
@@ -22,24 +26,46 @@ public class BattlePlayer implements IBattlePlayer {
 		return mPlayerCards;
 	}
 
+	/**
+	 * @return your opponents cards if the open rule is used. otherwise returns
+	 *         no cards
+	 */
+	public Card[] getOpponentCards() {
+		// check for open rule
+		for (int i = 0; i < mBattleEngine.getRules().length; i++) {
+			if (mBattleEngine.getRules()[i].equals(Rule.Open)) {
+				return mBattleEngine.getPlayers()[mPlayerNumber + 1 % 2].getCards();
+
+			}
+		}
+
+		// if there's no open rule, return an empty array
+		return new Card[] {};
+	}
+
+	/** @return the players number */
 	public int getPlayerNumber() {
 		return mPlayerNumber;
 	}
 
+	/** Sets this players turn */
 	public void setTurn(boolean isTurn) {
 		isMyTurn = isTurn;
 	}
 
+	/** @return true if it's this players turn */
 	public boolean isMyTurn() {
 		return isMyTurn;
 	}
 
+	/** Plays a card onto the battle engine */
 	@Override
 	public boolean playCard(int pCardNumInHand, int pSquareNumber) {
 		mBattleEngine.placeCard(getCards()[pCardNumInHand], pSquareNumber);
 		return true;
 	}
 
+	/** @return the battle engine */
 	public BattleEngine getBattleEngine() {
 		return mBattleEngine;
 	}
@@ -59,6 +85,11 @@ public class BattlePlayer implements IBattlePlayer {
 			}
 		}
 		return found;
+	}
+
+	@Override
+	public IBoardSquare[] getBoardSquares() {
+		return mBattleEngine.getBoardSquares();
 	}
 
 }

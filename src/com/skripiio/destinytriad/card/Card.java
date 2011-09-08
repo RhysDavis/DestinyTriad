@@ -24,9 +24,9 @@ import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
 
 import android.util.Log;
 
-import com.skripiio.destinytriad.battle.engine.Battle;
+import com.skripiio.destinytriad.battle.Battle;
+import com.skripiio.destinytriad.battle.IOnActionFinishedListener;
 import com.skripiio.destinytriad.battle.engine.BoardSquare;
-import com.skripiio.destinytriad.battle.engine.IOnActionFinishedListener;
 
 public class Card extends Sprite implements IBattleCard, IOnAreaTouchListener {
 

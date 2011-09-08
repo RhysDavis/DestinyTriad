@@ -16,7 +16,7 @@ import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
 import android.util.Log;
 
 import com.skripiio.destinytriad.battle.BattleActivity;
-import com.skripiio.destinytriad.battle.engine.IOnActionFinishedListener;
+import com.skripiio.destinytriad.battle.IOnActionFinishedListener;
 import com.skripiio.destinytriad.card.AbstractCard;
 import com.skripiio.destinytriad.card.Card;
 import com.skripiio.destinytriad.card.CardFactory;

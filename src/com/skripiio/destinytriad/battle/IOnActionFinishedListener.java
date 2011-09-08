@@ -1,4 +1,4 @@
-package com.skripiio.destinytriad.battle.engine;
+package com.skripiio.destinytriad.battle;
 
 public interface IOnActionFinishedListener {
 

@@ -1,5 +1,6 @@
 package com.skripiio.destinytriad.battle.engine;
 
+import com.skripiio.destinytriad.battle.player.BattlePlayer;
 import com.skripiio.destinytriad.battle.rules.Rule;
 
 public interface IBattle {

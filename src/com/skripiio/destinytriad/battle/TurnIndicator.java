@@ -11,7 +11,6 @@ import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
 
 import android.util.Log;
 
-import com.skripiio.destinytriad.battle.engine.IOnActionFinishedListener;
 
 public class TurnIndicator extends Sprite {
 

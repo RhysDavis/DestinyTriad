@@ -8,15 +8,15 @@ import org.anddev.andengine.entity.scene.Scene;
 import android.util.Log;
 
 import com.skripiio.destinytriad.battle.BattleActivity;
+import com.skripiio.destinytriad.battle.IOnActionFinishedListener;
 import com.skripiio.destinytriad.battle.TurnIndicator;
+import com.skripiio.destinytriad.battle.player.BattlePlayer;
 import com.skripiio.destinytriad.battle.player.ComputerBattlePlayer;
-import com.skripiio.destinytriad.battle.player.ControllerBattleView;
 import com.skripiio.destinytriad.battle.player.EasyAI;
 import com.skripiio.destinytriad.battle.player.HumanBattlePlayer;
 import com.skripiio.destinytriad.battle.rules.Rule;
 import com.skripiio.destinytriad.battle.rules.RuleSet;
 import com.skripiio.destinytriad.card.Card;
-import com.skripiio.destinytriad.card.Card.IOnCardSelectedListener;
 import com.skripiio.destinytriad.card.CardFactory;
 import com.skripiio.destinytriad.card.IBattleCard;
 import com.skripiio.destinytriad.card.selector.GameCardSelector;
@@ -117,7 +117,7 @@ public class BattleEngine implements IBattle {
 		// Create Battle Players
 		mPlayers[0] = new HumanBattlePlayer(0, pPlayerCards, BattleEngine.this);
 		mPlayers[1] = new ComputerBattlePlayer(1, new EasyAI(), mOppCards,
-				BattleEngine.this, new ControllerBattleView(this, 1));
+				BattleEngine.this);
 
 		// close card selector
 		mCardSelector.onClose(new IOnActionFinishedListener() {

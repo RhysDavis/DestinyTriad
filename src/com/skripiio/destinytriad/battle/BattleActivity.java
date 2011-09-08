@@ -1,17 +1,12 @@
 package com.skripiio.destinytriad.battle;
 
-import java.util.ArrayList;
-import java.util.Random;
-
 import org.anddev.andengine.engine.Engine;
 import org.anddev.andengine.engine.camera.Camera;
 import org.anddev.andengine.engine.options.EngineOptions;
 import org.anddev.andengine.engine.options.EngineOptions.ScreenOrientation;
 import org.anddev.andengine.engine.options.resolutionpolicy.FillResolutionPolicy;
 import org.anddev.andengine.entity.scene.Scene;
-import org.anddev.andengine.entity.scene.Scene.IOnSceneTouchListener;
 import org.anddev.andengine.entity.util.FPSLogger;
-import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.font.StrokeFont;
 import org.anddev.andengine.opengl.texture.TextureOptions;
 import org.anddev.andengine.opengl.texture.atlas.bitmap.BitmapTextureAtlas;
@@ -21,17 +16,12 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.util.Log;
-import android.view.KeyEvent;
 
-import com.skripiio.destinytriad.battle.engine.Battle;
 import com.skripiio.destinytriad.battle.rules.RuleSelectionScene;
 import com.skripiio.destinytriad.battle.rules.RuleSelectionScene.RulesSelectedListener;
 import com.skripiio.destinytriad.battle.rules.RuleSet;
-import com.skripiio.destinytriad.card.Card;
-import com.skripiio.destinytriad.card.CardFactory;
 
-public class BattleActivity extends BaseGameActivity implements IOnSceneTouchListener {
+public class BattleActivity extends BaseGameActivity {
 
 	public static final int CAMERA_WIDTH = 720;
 	public static final int CAMERA_HEIGHT = 480;
@@ -134,34 +124,12 @@ public class BattleActivity extends BaseGameActivity implements IOnSceneTouchLis
 	public Scene onLoadScene() {
 		this.mEngine.registerUpdateHandler(new FPSLogger());
 
-		final ArrayList<Card> mPlayerCards = new ArrayList<Card>();
-		final ArrayList<Card> mOpponentCards = new ArrayList<Card>();
-
-		Random r = new Random();
-		r.nextInt(19);
-
-		for (int i = 0; i < 5; i++) {
-			mPlayerCards.add(CardFactory.createCard(BattleActivity.this.getEngine(), 105, 140,
-					r.nextInt(19), 0, mCardFont, mCardGreenFont, mCardRedFont,
-					mCardBorderTextureRegion.clone(), mCardBackTextureRegion,
-					mCardBorderTextureRegion));
-
-		}
-
-		for (int i = 0; i < 5; i++) {
-			mOpponentCards.add(CardFactory.createCard(BattleActivity.this.getEngine(), 105, 140,
-					r.nextInt(19), 1, mCardFont, mCardGreenFont, mCardRedFont,
-					mCardBorderTextureRegion.clone(), mCardBackTextureRegion,
-					mCardBorderTextureRegion));
-		}
-
 		RuleSelectionScene rss = new RuleSelectionScene(mRuleFont, mCardFont, this,
 				new RulesSelectedListener() {
 
 					@Override
 					public void onRulesSelected(RuleSet rs) {
-						final BattleScene bs = new BattleScene(mPlayerCards, mOpponentCards,
-								BattleActivity.this, rs, mArrowTextureAtlas);
+						final Battle bs = new Battle(BattleActivity.this, rs);
 						BattleActivity.this.runOnUpdateThread(new Runnable() {
 
 							@Override
@@ -173,34 +141,13 @@ public class BattleActivity extends BaseGameActivity implements IOnSceneTouchLis
 					}
 				});
 
-		/*
-		 * CardSelectorScene css = new CardSelectorScene(new
-		 * CardSelectedListener() {
-		 * @Override public void onCardsSelected(Card[] pPlayerCards) { //
-		 * nothinggg } }, mPlayerCards);
-		 */
-
-		BattleActivity gbs = new BattleActivity(this, new RuleSet());
-
-		return gbs;
+		return rss;
 	}
 
 	@Override
 	public void onLoadComplete() {
 		// TODO Auto-generated method stub
 
-	}
-
-	/** Cannot get out of battles lolz */
-	@Override
-	public boolean onKeyDown(int keyCode, KeyEvent event) {
-
-		return super.onKeyDown(keyCode, event);
-	}
-
-	@Override
-	public boolean onSceneTouchEvent(Scene pScene, TouchEvent pSceneTouchEvent) {
-		return false;
 	}
 
 }
