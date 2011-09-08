@@ -8,7 +8,7 @@ import org.anddev.andengine.entity.scene.Scene.IOnSceneTouchListener;
 import org.anddev.andengine.entity.scene.background.ColorBackground;
 import org.anddev.andengine.input.touch.TouchEvent;
 
-import com.skripiio.destinytriad.battle.Battle;
+import com.skripiio.destinytriad.battle.BattleActivity;
 import com.skripiio.destinytriad.card.Card;
 
 public class CardSelectorScene extends Scene implements IOnSceneTouchListener {
@@ -38,7 +38,7 @@ public class CardSelectorScene extends Scene implements IOnSceneTouchListener {
 		}
 
 		setBackground(new ColorBackground(1, 1, 1));
-		float amountOfScreenRealEstate = Battle.CAMERA_HEIGHT
+		float amountOfScreenRealEstate = BattleActivity.CAMERA_HEIGHT
 				- ((Card.CARD_HEIGHT / 2) * 6);
 		float verticalBuffer = amountOfScreenRealEstate / 2;
 		mPlayerHand = new Rectangle[5];

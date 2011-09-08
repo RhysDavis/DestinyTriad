@@ -1,6 +1,5 @@
 package com.skripiio.destinytriad.battle.engine;
 
-import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -8,22 +7,28 @@ import org.anddev.andengine.entity.scene.Scene;
 
 import android.util.Log;
 
-import com.skripiio.destinytriad.battle.Battle;
+import com.skripiio.destinytriad.battle.BattleActivity;
 import com.skripiio.destinytriad.battle.TurnIndicator;
+import com.skripiio.destinytriad.battle.player.ComputerBattlePlayer;
+import com.skripiio.destinytriad.battle.player.ControllerBattleView;
+import com.skripiio.destinytriad.battle.player.EasyAI;
+import com.skripiio.destinytriad.battle.player.HumanBattlePlayer;
+import com.skripiio.destinytriad.battle.rules.Rule;
 import com.skripiio.destinytriad.battle.rules.RuleSet;
 import com.skripiio.destinytriad.card.Card;
+import com.skripiio.destinytriad.card.Card.IOnCardSelectedListener;
 import com.skripiio.destinytriad.card.CardFactory;
 import com.skripiio.destinytriad.card.IBattleCard;
 import com.skripiio.destinytriad.card.selector.GameCardSelector;
 import com.skripiio.destinytriad.card.selector.GameCardSelector.IOnCardsSelectedListener;
 
-public class GameBattleEngine implements IBattleEngine {
+public class BattleEngine implements IBattle {
 
 	/** All 9 of the board squares in the game */
 	private BoardSquare[] mBoardSquares;
 
 	/** The 2 players */
-	private IBattlePlayer[] mPlayers;
+	private BattlePlayer[] mPlayers;
 
 	/** Checker to see if the board is ready to accept a card. */
 	private boolean isReadyForCard;
@@ -45,112 +50,110 @@ public class GameBattleEngine implements IBattleEngine {
 
 	private Scene mScene;
 
-	private Battle mBattle;
+	private BattleActivity mBattle;
 
-	public GameBattleEngine(Battle pBattle, IBattlePlayer[] pPlayers,
-			BoardSquare[] pBoardSquares, RuleSet pRuleSet, TurnIndicator pTurnIndicator,
-			Scene pScene, GameCardSelector pCardSelector) {
+	public BattleEngine(BattleActivity pBattle, BoardSquare[] pBoardSquares,
+			RuleSet pRuleSet, TurnIndicator pTurnIndicator, Scene pScene,
+			GameCardSelector pCardSelector) {
 		mRuleSet = pRuleSet;
-		mPlayers = pPlayers;
 		mBattle = pBattle;
 		mBoardSquares = pBoardSquares;
 		mTurnIndicator = pTurnIndicator;
 		mCardSelector = pCardSelector;
 		mScene = pScene;
-		initialize();
+		onCreateScene();
 	}
 
-	@Override
-	public void initialize() {
+	/** First thing called */
+	public void onCreateScene() {
 		Log.v("BattleEngine", "Initializing.");
 		isReadyForCard = false;
-		onCardSelect(new IOnCardsSelectedListener() {
+		mPlayers = new BattlePlayer[2];
+
+		// select a bunch of cards
+		onCardsSelect(new IOnCardsSelectedListener() {
 
 			@Override
-			public void onCardsSelected(final ArrayList<Card> pPlayerCards) {
-				// attach the cards onto the scene
-				mBattle.runOnUpdateThread(new Runnable() {
-
-					@Override
-					public void run() {
-						for (int i = 0; i < pPlayerCards.size(); i++) {
-							pPlayerCards.get(i).detachSelf();
-							mScene.attachChild(pPlayerCards.get(i));
-						}
-					}
-				});
-
-				mPlayers[0].setPlayerCards(pPlayerCards);
-
-				Random r = new Random();
-				ArrayList<Card> mOpponentCards = new ArrayList<Card>();
-				for (int i = 0; i < 5; i++) {
-					Card c = CardFactory.createCard(mBattle.getEngine(), 105, 140,
-							r.nextInt(19), 1, mBattle.mCardFont, mBattle.mCardGreenFont,
-							mBattle.mCardRedFont, mBattle.mCardBorderTextureRegion.clone(),
-							mBattle.mCardBackTextureRegion, mBattle.mCardBorderTextureRegion);
-					mOpponentCards.add(c);
-					mScene.attachChild(c);
-				}
-				
-				mPlayers[1].setPlayerCards(mOpponentCards);
-				// close card selector
-				mCardSelector.onClose(new IOnActionFinishedListener() {
-
-					@Override
-					public void OnAnimationFinished() {
-						mBattle.runOnUpdateThread(new Runnable() {
-
-							@Override
-							public void run() {
-								Log.v("BattleEngine", "Detaching Card Selector");
-								mCardSelector.detachSelf();
-
-							}
-						});
-						// do battle start
-						onBattleStart(new IOnActionFinishedListener() {
-
-							@Override
-							public void OnAnimationFinished() {
-								// do start turn
-								// Do engines start turn sequence
-								onTurnStart(new IOnActionFinishedListener() {
-
-									@Override
-									public void OnAnimationFinished() {
-										// Do players start turn sequence
-										mPlayers[mCurrentPlayer]
-												.onStartTurn(new IOnActionFinishedListener() {
-
-													@Override
-													public void OnAnimationFinished() {
-														isReadyForCard = true;
-													}
-												});
-									}
-								});
-							}
-						});
-
-					}
-				});
-
+			public void onCardsSelected(final Card[] pPlayerCards) {
+				onCardsSelected(pPlayerCards);
 			}
 		});
 
 	}
 
 	/** Selects the cards */
-	public void onCardSelect(IOnCardsSelectedListener pOnCardsSelectedListener) {
+	public void onCardsSelect(IOnCardsSelectedListener pOnCardsSelectedListener) {
 		mScene.attachChild(mCardSelector);
 		Log.v("BattleEngine", "Opening Card Selector");
 		mCardSelector.onOpen(pOnCardsSelectedListener);
 	}
 
-	@Override
-	public void onBattleStart(
-			final IOnActionFinishedListener pOnAnimationFinishedListener) {
+	/** Gets called after the cards have been selected */
+	public void onCardsSelected(final Card[] pPlayerCards) {
+		// Attach cards to the scene
+		mBattle.runOnUpdateThread(new Runnable() {
+
+			@Override
+			public void run() {
+				for (int i = 0; i < pPlayerCards.length; i++) {
+					pPlayerCards[i].detachSelf();
+					mScene.attachChild(pPlayerCards[i]);
+				}
+			}
+		});
+
+		// Generate Opponent Cards
+		Random r = new Random();
+		Card[] mOppCards = new Card[5];
+		for (int i = 0; i < 5; i++) {
+			Card c = CardFactory.createCard(mBattle.getEngine(), 105, 140, r.nextInt(19), 1,
+					mBattle.mCardFont, mBattle.mCardGreenFont, mBattle.mCardRedFont,
+					mBattle.mCardBorderTextureRegion.clone(), mBattle.mCardBackTextureRegion,
+					mBattle.mCardBorderTextureRegion);
+			mOppCards[i] = c;
+			mScene.attachChild(c);
+		}
+
+		// Create Battle Players
+		mPlayers[0] = new HumanBattlePlayer(0, pPlayerCards, BattleEngine.this);
+		mPlayers[1] = new ComputerBattlePlayer(1, new EasyAI(), mOppCards,
+				BattleEngine.this, new ControllerBattleView(this, 1));
+
+		// close card selector
+		mCardSelector.onClose(new IOnActionFinishedListener() {
+
+			@Override
+			public void OnAnimationFinished() {
+				onCardSelectionScreenClosed();
+			}
+		});
+	}
+
+	/** Called when the card selection screen closes */
+	public void onCardSelectionScreenClosed() {
+		// detach card selection screen
+		mBattle.runOnUpdateThread(new Runnable() {
+
+			@Override
+			public void run() {
+				Log.v("BattleEngine", "Detaching Card Selector");
+				mCardSelector.detachSelf();
+
+			}
+		});
+
+		// do battle start
+		onBattleStart(new IOnActionFinishedListener() {
+
+			@Override
+			public void OnAnimationFinished() {
+				onTurnStart(onTurnStartListener);
+			}
+		});
+
+	}
+
+	public void onBattleStart(final IOnActionFinishedListener pOnAnimationFinishedListener) {
 		Log.v("BattleEngine", "Starting Battle");
 		// makes the turn indicator spin & decide which player goes first
 		mTurnIndicator.onFirstTurn(new IOnActionFinishedListener() {
@@ -165,14 +168,25 @@ public class GameBattleEngine implements IBattleEngine {
 		});
 	}
 
-	@Override
+	private IOnActionFinishedListener onTurnStartListener = new IOnActionFinishedListener() {
+
+		@Override
+		public void OnAnimationFinished() {
+			// Do players start turn sequence
+			isReadyForCard = true;
+			mPlayers[mCurrentPlayer].setTurn(true);
+
+		}
+	};
+
+	/** Called when a turn starts */
 	public void onTurnStart(IOnActionFinishedListener pOnAnimationFinishedListener) {
 		Log.v("BattleEngine", "Starting Turn...");
+		pOnAnimationFinishedListener.OnAnimationFinished();
 	}
 
-	@Override
-	public void onTurnFinish(
-			final IOnActionFinishedListener pOnAnimationFinishedListener) {
+	/** Called when a turn finishes */
+	public void onTurnFinish(final IOnActionFinishedListener pOnAnimationFinishedListener) {
 		Log.v("BattleEngine", "Finishing Turn...");
 		// make the turn indicator swap players
 		mTurnIndicator.onChangeTurn(new IOnActionFinishedListener() {
@@ -183,7 +197,6 @@ public class GameBattleEngine implements IBattleEngine {
 				pOnAnimationFinishedListener.OnAnimationFinished();
 			}
 		});
-
 	}
 
 	/** Checks to see if the turn should end */
@@ -199,7 +212,6 @@ public class GameBattleEngine implements IBattleEngine {
 	 * onTurnFinish animation and the next players onStartAnimation. Then
 	 * unblocks the pipeline for players to make a move
 	 */
-	@Override
 	public void endTurn() {
 		Log.v("BattleEngine", "Player's turn complete. Blocking play pipeline");
 		// block all players moves from occuring during the animations
@@ -209,26 +221,19 @@ public class GameBattleEngine implements IBattleEngine {
 
 				@Override
 				public void OnAnimationFinished() {
+					mPlayers[mCurrentPlayer].setTurn(false);
 					mCurrentPlayer = getNextPlayerNumber();
-					Log.v("BattleEngine", "Finished Turn. Player " + mCurrentPlayer + " turn");
+					Log.v("BattleEngine", "Finished turn.");
 					// Do engines start turn sequence
 					onTurnStart(new IOnActionFinishedListener() {
 
 						@Override
 						public void OnAnimationFinished() {
-							Log.v("BattleEngine", "Starting players turn");
+							Log.v("BattleEngine", "Player " + mCurrentPlayer + "'s turn.");
 							// Do players start turn sequence
-							mPlayers[mCurrentPlayer]
-									.onStartTurn(new IOnActionFinishedListener() {
+							mPlayers[mCurrentPlayer].setTurn(true);
+							isReadyForCard = true;
 
-										@Override
-										public void OnAnimationFinished() {
-											Log.v("BattleEngine", "Opening play pipeline");
-											// set the engine ready to take a card from a
-											// player
-											isReadyForCard = true;
-										}
-									});
 						}
 					});
 
@@ -243,10 +248,19 @@ public class GameBattleEngine implements IBattleEngine {
 	}
 
 	@Override
+	public BattlePlayer[] getPlayers() {
+		return mPlayers;
+	}
+
+	@Override
+	public Rule[] getRules() {
+		return mRuleSet.getRules();
+	}
+	
 	public boolean isGameOver() {
 		// checks to see if any board squares are empty
 		for (int i = 0; i < mBoardSquares.length; i++) {
-			if (!mBoardSquares[i].isTaken()) {
+			if (!mBoardSquares[i].isCardHere()) {
 				// if a board square isn't taken, the game isn't over
 				return false;
 			}
@@ -254,28 +268,24 @@ public class GameBattleEngine implements IBattleEngine {
 		return true;
 	}
 
-	@Override
-	public IBoardSquare getBoardSquare(int pSquareNumber) {
+	public BoardSquare getBoardSquare(int pSquareNumber) {
 		return mBoardSquares[pSquareNumber];
 	}
 
-	@Override
 	public boolean isOpponentHandVisible() {
 		return mRuleSet.isOpenRule();
 	}
 
-	@Override
-	public ArrayList<Card> getOpponentHand() {
+	public Card[] getOpponentHand() {
 		return mPlayers[getNextPlayerNumber()].getCards();
 	}
 
-	@Override
-	public void placeCard(IBattleCard pCard, final int pSquareNumber) {
-		Log.v("BattleEngine", "Player " + mCurrentPlayer + " placing card in square "
+	public void placeCard(Card pCard, final int pSquareNumber) {
+		Log.v("BattleEngine", "Player " + mCurrentPlayer + " placing card on square "
 				+ pSquareNumber);
 		if (!isReadyForCard) {
 			// player made an illegal move
-			throw new InvalidParameterException("Engine is not ready for a card.");
+			throw new IllegalStateException("Engine is not ready for a card.");
 		}
 
 		// place the card on the board
@@ -289,17 +299,14 @@ public class GameBattleEngine implements IBattleEngine {
 		});
 	}
 
-	@Override
 	public IBattlePlayer getCurrentPlayer() {
 		return mPlayers[mCurrentPlayer];
 	}
 
-	@Override
-	public IBoardSquare[] getBoardSquares() {
+	public BoardSquare[] getBoardSquares() {
 		return mBoardSquares;
 	}
 
-	@Override
 	public boolean readyForCard() {
 		return isReadyForCard;
 	}
@@ -403,10 +410,10 @@ public class GameBattleEngine implements IBattleEngine {
 	 * this game. This is a combo rule.
 	 */
 	private void checkSameRule(final int squareNumber) {
-		IBattleCard west = getWestCard(squareNumber);
-		IBattleCard east = getEastCard(squareNumber);
-		IBattleCard north = getNorthCard(squareNumber);
-		IBattleCard south = getSouthCard(squareNumber);
+		Card west = getWestCard(squareNumber);
+		Card east = getEastCard(squareNumber);
+		Card north = getNorthCard(squareNumber);
+		Card south = getSouthCard(squareNumber);
 
 		int numSame = 0;
 		boolean westSame = false;
@@ -527,7 +534,7 @@ public class GameBattleEngine implements IBattleEngine {
 	}
 
 	/** Gets the card to the west of the square number */
-	private IBattleCard getWestCard(int squareNumber) {
+	private Card getWestCard(int squareNumber) {
 		if (squareNumber % 3 != 0) {
 			return this.mBoardSquares[squareNumber - 1].getCard();
 		} else {
@@ -535,7 +542,7 @@ public class GameBattleEngine implements IBattleEngine {
 		}
 	}
 
-	private IBattleCard getEastCard(int squareNumber) {
+	private Card getEastCard(int squareNumber) {
 		if (squareNumber % 3 != (2)) {
 			return this.mBoardSquares[squareNumber + 1].getCard();
 		} else {
@@ -543,7 +550,7 @@ public class GameBattleEngine implements IBattleEngine {
 		}
 	}
 
-	private IBattleCard getNorthCard(int squareNumber) {
+	private Card getNorthCard(int squareNumber) {
 		if (squareNumber - 3 >= 0) {
 			return this.mBoardSquares[squareNumber - 3].getCard();
 		} else {
@@ -551,7 +558,7 @@ public class GameBattleEngine implements IBattleEngine {
 		}
 	}
 
-	private IBattleCard getSouthCard(int squareNumber) {
+	private Card getSouthCard(int squareNumber) {
 		if (squareNumber + 3 < this.mBoardSquares.length) {
 			return this.mBoardSquares[squareNumber + 3].getCard();
 		} else {
@@ -566,7 +573,7 @@ public class GameBattleEngine implements IBattleEngine {
 	 */
 	private boolean checkWest(final int squareNumber, boolean combo) {
 		// if there is a west card
-		IBattleCard westOf = getWestCard(squareNumber);
+		Card westOf = getWestCard(squareNumber);
 		if (westOf != null) {
 			if (westOf.getPlayerID() != mCurrentPlayer) {
 				if (this.mBoardSquares[squareNumber].getCard().getWest() > westOf.getEast()) {
@@ -601,7 +608,7 @@ public class GameBattleEngine implements IBattleEngine {
 
 	/** Checks card ownership on the east */
 	private boolean checkEast(final int squareNumber, boolean combo) {
-		IBattleCard eastOf = getEastCard(squareNumber);
+		Card eastOf = getEastCard(squareNumber);
 		if (eastOf != null) {
 			if (eastOf.getPlayerID() != mCurrentPlayer) {
 				if (this.mBoardSquares[squareNumber].getCard().getEast() > eastOf.getWest()) {
@@ -635,7 +642,7 @@ public class GameBattleEngine implements IBattleEngine {
 
 	/** Checks the card ownership on the south */
 	private boolean checkSouth(final int squareNumber, boolean combo) {
-		IBattleCard southOf = getSouthCard(squareNumber);
+		Card southOf = getSouthCard(squareNumber);
 		if (southOf != null) {
 			if (southOf.getPlayerID() != mCurrentPlayer) {
 				if (mBoardSquares[squareNumber].getCard().getSouth() > southOf.getNorth()) {
@@ -672,7 +679,7 @@ public class GameBattleEngine implements IBattleEngine {
 	 * Checks the card ownership on the north.
 	 */
 	private boolean checkNorth(final int squareNumber, boolean combo) {
-		IBattleCard northOf = getNorthCard(squareNumber);
+		Card northOf = getNorthCard(squareNumber);
 		if (northOf != null) {
 			if (northOf.getPlayerID() != mCurrentPlayer) {
 				if (mBoardSquares[squareNumber].getCard().getNorth() > northOf.getSouth()) {
@@ -704,4 +711,6 @@ public class GameBattleEngine implements IBattleEngine {
 		}
 		return false;
 	}
+
+	
 }

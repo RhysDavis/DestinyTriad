@@ -29,9 +29,4 @@ public class CardList {
 		mCard06, mCard07, mCard08, mCard09, mCard10, mCard11, mCard12, mCard13, mCard14,
 		mCard15, mCard16, mCard17, mCard18, mCard19, mCard20 };
 	
-	/** Sorts them on ID */
-	public static void sortCards(ArrayList<AbstractCard> pCards) {
-		
-	}
-	
 }

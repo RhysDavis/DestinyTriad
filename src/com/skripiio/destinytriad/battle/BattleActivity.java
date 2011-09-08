@@ -24,14 +24,14 @@ import android.graphics.Typeface;
 import android.util.Log;
 import android.view.KeyEvent;
 
-import com.skripiio.destinytriad.battle.engine.GameBattleScene;
+import com.skripiio.destinytriad.battle.engine.Battle;
 import com.skripiio.destinytriad.battle.rules.RuleSelectionScene;
 import com.skripiio.destinytriad.battle.rules.RuleSelectionScene.RulesSelectedListener;
 import com.skripiio.destinytriad.battle.rules.RuleSet;
 import com.skripiio.destinytriad.card.Card;
 import com.skripiio.destinytriad.card.CardFactory;
 
-public class Battle extends BaseGameActivity implements IOnSceneTouchListener {
+public class BattleActivity extends BaseGameActivity implements IOnSceneTouchListener {
 
 	public static final int CAMERA_WIDTH = 720;
 	public static final int CAMERA_HEIGHT = 480;
@@ -141,7 +141,7 @@ public class Battle extends BaseGameActivity implements IOnSceneTouchListener {
 		r.nextInt(19);
 
 		for (int i = 0; i < 5; i++) {
-			mPlayerCards.add(CardFactory.createCard(Battle.this.getEngine(), 105, 140,
+			mPlayerCards.add(CardFactory.createCard(BattleActivity.this.getEngine(), 105, 140,
 					r.nextInt(19), 0, mCardFont, mCardGreenFont, mCardRedFont,
 					mCardBorderTextureRegion.clone(), mCardBackTextureRegion,
 					mCardBorderTextureRegion));
@@ -149,7 +149,7 @@ public class Battle extends BaseGameActivity implements IOnSceneTouchListener {
 		}
 
 		for (int i = 0; i < 5; i++) {
-			mOpponentCards.add(CardFactory.createCard(Battle.this.getEngine(), 105, 140,
+			mOpponentCards.add(CardFactory.createCard(BattleActivity.this.getEngine(), 105, 140,
 					r.nextInt(19), 1, mCardFont, mCardGreenFont, mCardRedFont,
 					mCardBorderTextureRegion.clone(), mCardBackTextureRegion,
 					mCardBorderTextureRegion));
@@ -161,12 +161,12 @@ public class Battle extends BaseGameActivity implements IOnSceneTouchListener {
 					@Override
 					public void onRulesSelected(RuleSet rs) {
 						final BattleScene bs = new BattleScene(mPlayerCards, mOpponentCards,
-								Battle.this, rs, mArrowTextureAtlas);
-						Battle.this.runOnUpdateThread(new Runnable() {
+								BattleActivity.this, rs, mArrowTextureAtlas);
+						BattleActivity.this.runOnUpdateThread(new Runnable() {
 
 							@Override
 							public void run() {
-								Battle.this.getEngine().setScene(bs);
+								BattleActivity.this.getEngine().setScene(bs);
 
 							}
 						});
@@ -180,7 +180,7 @@ public class Battle extends BaseGameActivity implements IOnSceneTouchListener {
 		 * nothinggg } }, mPlayerCards);
 		 */
 
-		GameBattleScene gbs = new GameBattleScene(this, new RuleSet());
+		BattleActivity gbs = new BattleActivity(this, new RuleSet());
 
 		return gbs;
 	}

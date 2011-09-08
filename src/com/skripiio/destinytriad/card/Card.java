@@ -11,8 +11,11 @@ import org.anddev.andengine.entity.modifier.RotationModifier;
 import org.anddev.andengine.entity.modifier.ScaleModifier;
 import org.anddev.andengine.entity.modifier.SequenceEntityModifier;
 import org.anddev.andengine.entity.primitive.Rectangle;
+import org.anddev.andengine.entity.scene.Scene.IOnAreaTouchListener;
+import org.anddev.andengine.entity.scene.Scene.ITouchArea;
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.entity.text.Text;
+import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.font.Font;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 import org.anddev.andengine.opengl.util.GLHelper;
@@ -20,13 +23,12 @@ import org.anddev.andengine.util.modifier.IModifier;
 import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
 
 import android.util.Log;
-import android.view.animation.Animation.AnimationListener;
 
-import com.skripiio.destinytriad.battle.BattleScene;
+import com.skripiio.destinytriad.battle.engine.Battle;
 import com.skripiio.destinytriad.battle.engine.BoardSquare;
 import com.skripiio.destinytriad.battle.engine.IOnActionFinishedListener;
 
-public class Card extends Sprite implements IBattleCard {
+public class Card extends Sprite implements IBattleCard, IOnAreaTouchListener {
 
 	public static final int CARD_WIDTH = 105;
 	public static final int CARD_HEIGHT = 140;
@@ -140,7 +142,7 @@ public class Card extends Sprite implements IBattleCard {
 		mEngine = e;
 		// set player id color
 		this.mPlayerColorRectangle = new Rectangle(0, 0, pWidth, pHeight);
-		if (playerID == BattleScene.PLAYER_USER) {
+		if (playerID == Battle.PLAYER_USER) {
 			this.mPlayerColorRectangle.setColor(0, 0, 1);
 		} else {
 			this.mPlayerColorRectangle.setColor(1, 0, 0);
@@ -226,7 +228,7 @@ public class Card extends Sprite implements IBattleCard {
 	/** Animates the card to be deselected */
 	public void deSelectCard() {
 		if (this.isSelected) {
-			if (this.getPlayerID() == BattleScene.PLAYER_USER) {
+			if (this.getPlayerID() == Battle.PLAYER_USER) {
 				this.mSelectRightModifier = new MoveModifier(SELECT_DURATION, this.getX(),
 						this.getX() - (this.getWidth() / 2f), this.getY(), this.getY());
 				this.registerEntityModifier(this.mSelectRightModifier);
@@ -249,10 +251,10 @@ public class Card extends Sprite implements IBattleCard {
 
 	/** Flips the card to the other players ownership */
 	public void flipCard(IOnActionFinishedListener cfl) {
-		if (this.mPlayerID == BattleScene.PLAYER_USER) {
-			this.mPlayerID = BattleScene.PLAYER_OPP;
-		} else if (this.mPlayerID == BattleScene.PLAYER_OPP) {
-			this.mPlayerID = BattleScene.PLAYER_USER;
+		if (this.mPlayerID == Battle.PLAYER_USER) {
+			this.mPlayerID = Battle.PLAYER_OPP;
+		} else if (this.mPlayerID == Battle.PLAYER_OPP) {
+			this.mPlayerID = Battle.PLAYER_USER;
 		}
 		// bring this card to the front
 		int counter = 0;
@@ -404,10 +406,10 @@ public class Card extends Sprite implements IBattleCard {
 
 			@Override
 			public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-				if (Card.this.mPlayerID == BattleScene.PLAYER_USER) {
+				if (Card.this.mPlayerID == Battle.PLAYER_USER) {
 					Card.this.mPlayerColorRectangle.setColor(0, 0, 1);
 
-				} else if (Card.this.mPlayerID == BattleScene.PLAYER_OPP) {
+				} else if (Card.this.mPlayerID == Battle.PLAYER_OPP) {
 					Card.this.mPlayerColorRectangle.setColor(1, 0, 0);
 
 				}
@@ -591,7 +593,7 @@ public class Card extends Sprite implements IBattleCard {
 	/** Selects a card with an animation listener */
 	public void select(final IOnActionFinishedListener al) {
 		if (!this.isSelected) {
-			if (this.getPlayerID() == BattleScene.PLAYER_USER) {
+			if (this.getPlayerID() == Battle.PLAYER_USER) {
 				this.mSelectLeftModifier = new MoveModifier(SELECT_DURATION, this.getX(),
 						this.getX() + (this.getWidth() / 2f), this.getY(), this.getY());
 				this.mSelectLeftModifier
@@ -644,7 +646,7 @@ public class Card extends Sprite implements IBattleCard {
 	/** Animates the card to be selected */
 	public void selectCard() {
 		if (!this.isSelected) {
-			if (this.getPlayerID() == BattleScene.PLAYER_USER) {
+			if (this.getPlayerID() == Battle.PLAYER_USER) {
 				this.mSelectLeftModifier = new MoveModifier(SELECT_DURATION, this.getX(),
 						this.getX() + (this.getWidth() / 2f), this.getY(), this.getY());
 				this.registerEntityModifier(this.mSelectLeftModifier);
@@ -701,40 +703,42 @@ public class Card extends Sprite implements IBattleCard {
 		this.isPlaced = true;
 	}
 
-	@Override
 	public void flip(IOnActionFinishedListener onAnimationFinishedListener) {
 		flipCard(onAnimationFinishedListener);
-
 	}
 
 	@Override
 	public int getElement() {
-
 		return mElement;
 	}
 
-	@Override
 	public void placeCard(BoardSquare pBoardSquare,
 			IOnActionFinishedListener onAnimationFinishedListener) {
 		moveCardToLocation(pBoardSquare.getX(), pBoardSquare.getY(),
 				onAnimationFinishedListener);
 	}
 
-	@Override
 	public void setFaceDown(boolean faceDown, IOnActionFinishedListener listener) {
 		setFaceDown(true);
 		listener.OnAnimationFinished();
 	}
 
-	@Override
-	public void selectCard(IOnActionFinishedListener listener) {
-		selectCard();
-
+	public interface IOnCardSelectedListener {
+		public void onCardSelect(Card pCard);
 	}
 
-	@Override
-	public void deSelectCard(IOnActionFinishedListener listener) {
-		deSelectCard();
+	private IOnCardSelectedListener mSelectedListener;
 
+	public void setOnSelectListener(IOnCardSelectedListener pIOnCardSelectedListener) {
+		mSelectedListener = pIOnCardSelectedListener;
 	}
+
+	/** Selects this card */
+	@Override
+	public boolean onAreaTouched(TouchEvent pSceneTouchEvent, ITouchArea pTouchArea,
+			float pTouchAreaLocalX, float pTouchAreaLocalY) {
+		mSelectedListener.onCardSelect(this);
+		return true;
+	}
+
 }

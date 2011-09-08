@@ -1,53 +1,64 @@
 package com.skripiio.destinytriad.battle.engine;
 
-import java.util.ArrayList;
-
-import org.anddev.andengine.entity.Entity;
-
-import android.util.Log;
-
 import com.skripiio.destinytriad.card.Card;
-import com.skripiio.destinytriad.card.IBattleCard;
 
-public abstract class BattlePlayer extends Entity implements IBattlePlayer {
+public class BattlePlayer implements IBattlePlayer {
 
-	private IBattleEngine mBattleEngine;
+	private BattleEngine mBattleEngine;
 
-	private ArrayList<Card> mPlayerCards;
+	private Card[] mPlayerCards;
 
 	private int mPlayerNumber;
 
-	public BattlePlayer(int pPlayerNumber) {
+	private boolean isMyTurn = false;
+
+	public BattlePlayer(int pPlayerNumber, Card[] pPlayerCards, BattleEngine pBattleEngine) {
 		mPlayerNumber = pPlayerNumber;
-	}
-
-	@Override
-	public void setPlayerCards(ArrayList<Card> pPlayerCards) {
-		Log.v("BattleEngine", "Player - Player's Cards Set");
 		mPlayerCards = pPlayerCards;
-	}
-
-	@Override
-	public ArrayList<Card> getCards() {
-		return mPlayerCards;
-	}
-
-	public IBattleEngine getBattleEngine() {
-		return mBattleEngine;
-	}
-
-	public void setBattleEngine(IBattleEngine pBattleEngine) {
 		mBattleEngine = pBattleEngine;
 	}
 
-	@Override
+	public Card[] getCards() {
+		return mPlayerCards;
+	}
+
 	public int getPlayerNumber() {
 		return mPlayerNumber;
 	}
 
+	public void setTurn(boolean isTurn) {
+		isMyTurn = isTurn;
+	}
+
+	public boolean isMyTurn() {
+		return isMyTurn;
+	}
+
 	@Override
-	public void playCard(IBattleCard pCard, int pSquareNumber) {
-		mBattleEngine.placeCard(pCard, pSquareNumber);
+	public boolean playCard(int pCardNumInHand, int pSquareNumber) {
+		mBattleEngine.placeCard(getCards()[pCardNumInHand], pSquareNumber);
+		return true;
+	}
+
+	public BattleEngine getBattleEngine() {
+		return mBattleEngine;
+	}
+
+	/**
+	 * "Selects" a card in the battle players hand, animating the selection and
+	 * returning true if the card is actually in his hand and not on the board
+	 */
+	public boolean selectCard(Card c) {
+		boolean found = false;
+		for (int i = 0; i < mPlayerCards.length; i++) {
+			if (mPlayerCards[i] == c) {
+				c.selectCard();
+				found = true;
+			} else {
+				c.deSelectCard();
+			}
+		}
+		return found;
 	}
 
 }

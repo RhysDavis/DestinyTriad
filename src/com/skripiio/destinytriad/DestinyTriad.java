@@ -17,7 +17,7 @@ import org.anddev.andengine.ui.activity.BaseGameActivity;
 
 import android.content.Intent;
 
-import com.skripiio.destinytriad.battle.Battle;
+import com.skripiio.destinytriad.battle.BattleActivity;
 import com.skripiio.destinytriad.battle.rules.RuleSelectionActivity;
 import com.skripiio.destinytriad.battle.rules.RuleSelectionScene;
 
@@ -93,7 +93,7 @@ public class DestinyTriad extends BaseGameActivity {
 					org.anddev.andengine.input.touch.TouchEvent pSceneTouchEvent,
 					float pTouchAreaLocalX, float pTouchAreaLocalY) {
 				if (pSceneTouchEvent.isActionUp()) {
-					Intent i = new Intent(DestinyTriad.this, Battle.class);
+					Intent i = new Intent(DestinyTriad.this, BattleActivity.class);
 					DestinyTriad.this.startActivity(i);
 					//overridePendingTransition(R.anim.fade, R.anim.hold);
 					

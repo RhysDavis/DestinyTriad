@@ -1,30 +1,49 @@
 package com.skripiio.destinytriad.battle.engine;
 
+import java.util.ArrayList;
+
 import org.anddev.andengine.entity.sprite.Sprite;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 
-import com.skripiio.destinytriad.card.IBattleCard;
+import com.skripiio.destinytriad.card.Card;
 
-public abstract class BoardSquare extends Sprite implements IBoardSquare {
+public class BoardSquare extends Sprite implements IBoardSquare {
+
+	public interface IOnBoardSquareSelectedListener {
+		public void onBoardSquareSelected(BoardSquare pBoardSquare);
+	}
+
+	private int mBoardSquareNumber;
 
 	private int mElement;
 
-	private IBattleCard mCard;
+	private Card mCard;
 
+	private ArrayList<IOnBoardSquareSelectedListener> mListeners;
+	
 	/** Creates a normal Board Square */
 	public BoardSquare(float pX, float pY, float pWidth, float pHeight,
-			TextureRegion pTextureRegion) {
+			int pBoardSquareNumber, TextureRegion pTextureRegion) {
 		super(pX, pY, pWidth, pHeight, pTextureRegion);
 		mElement = -1;
+		mBoardSquareNumber = pBoardSquareNumber;
+		initialize();
 	}
 
 	/** Creates a board square with an element */
 	public BoardSquare(float pX, float pY, float pWidth, float pHeight,
-			TextureRegion pTextureRegion, int pElement) {
+			int pBoardSquareNumber, TextureRegion pTextureRegion, int pElement) {
 		super(pX, pY, pWidth, pHeight, pTextureRegion);
 		this.mElement = pElement;
+		mBoardSquareNumber = pBoardSquareNumber;
+		initialize();
+
 	}
 
+	private void initialize() {
+		mListeners = new ArrayList<IOnBoardSquareSelectedListener>();
+	}
+	
 	@Override
 	public boolean isElement() {
 		return (mElement != -1);
@@ -36,16 +55,25 @@ public abstract class BoardSquare extends Sprite implements IBoardSquare {
 	}
 
 	@Override
-	public boolean isTaken() {
+	public boolean isCardHere() {
 		return (mCard != null);
 	}
 
-	public IBattleCard getCard() {
+	public Card getCard() {
 		return mCard;
 	};
 
-	@Override
-	public void setCard(IBattleCard pCard) {
+	public void setCard(Card pCard) {
 		mCard = pCard;
 	}
+
+	@Override
+	public int getBoardSquareNumber() {
+		return mBoardSquareNumber;
+	}
+
+	public void setOnBoardSelectedListener(IOnBoardSquareSelectedListener pListener) {
+		mListeners.add(pListener);
+	}
+	
 }

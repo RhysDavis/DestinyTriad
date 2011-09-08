@@ -14,7 +14,7 @@
             </intent-filter>
         </activity>
 		
-		<activity android:name=".battle.Battle"	/>
+		<activity android:name=".battle.BattleActivity"	/>
 			
     </application>
     

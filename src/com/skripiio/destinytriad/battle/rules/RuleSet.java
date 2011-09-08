@@ -1,5 +1,7 @@
 package com.skripiio.destinytriad.battle.rules;
 
+import java.util.ArrayList;
+
 /** RuleSEt */
 public class RuleSet {
 
@@ -159,8 +161,40 @@ public class RuleSet {
 		return mOneRule;
 	}
 
+	public Rule[] getRules() {
+		ArrayList<Rule> rules = new ArrayList<Rule>();
+		if (isPlusRule()) {
+			rules.add(Rule.Plus);
+		}
+		if (isSameRule()) {
+			rules.add(Rule.Same);
+		}
+		if (isSameWallRule()) {
+			rules.add(Rule.Same_Wall);
+		}
+		if (isElementalRule()) {
+			rules.add(Rule.Elemental);
+		}
+		if (isOpenRule()) {
+			rules.add(Rule.Open);
+		}
+		if (isSuddenDeathRule()) {
+			rules.add(Rule.Sudden_Death);
+		}
+		if (isDiffRule()) {
+			
+		}
+		if (isDirectRule()) {
+		}
+		if (isOneRule()) {
+		}
+		if (isAllRule()) {
+		}
+		Rule[] ruleList = new Rule[rules.size()];
+		return ruleList;
+	}
+	
 	public static RuleSet fromString(String ruleSetString) {
-		
 		return null;
 	}
 

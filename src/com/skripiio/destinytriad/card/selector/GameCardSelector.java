@@ -15,7 +15,7 @@ import org.anddev.andengine.util.modifier.IModifier.IModifierListener;
 
 import android.util.Log;
 
-import com.skripiio.destinytriad.battle.Battle;
+import com.skripiio.destinytriad.battle.BattleActivity;
 import com.skripiio.destinytriad.battle.engine.IOnActionFinishedListener;
 import com.skripiio.destinytriad.card.AbstractCard;
 import com.skripiio.destinytriad.card.Card;
@@ -27,7 +27,7 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 		IOnAreaTouchListener {
 
 	private IOnCardsSelectedListener mOnCardsSelectedListener;
-	private Battle mEngine;
+	private BattleActivity mEngine;
 	private Scene mScene;
 
 	private Rectangle[] mPlayerHandLocations;
@@ -36,22 +36,22 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 
 	private int mCardsInHandCounter = 0;
 	
-	public GameCardSelector(Battle pEngine, Scene pScene) {
-		super(0, 0, Battle.CAMERA_WIDTH, Battle.CAMERA_HEIGHT);
+	public GameCardSelector(BattleActivity pEngine, Scene pScene) {
+		super(0, 0, BattleActivity.CAMERA_WIDTH, BattleActivity.CAMERA_HEIGHT);
 		this.setColor(0, 0, 0, 0.8f);
 		mEngine = pEngine;
 		mScene = pScene;
 		mPlayerHandLocations = new Rectangle[5];
 		mCards = new ArrayList<Card>();
-		float vVerticalSpaceBuffer = ((Battle.CAMERA_HEIGHT - ((Card.CARD_HEIGHT) / 2f) * 6f) / 2f);
+		float vVerticalSpaceBuffer = ((BattleActivity.CAMERA_HEIGHT - ((Card.CARD_HEIGHT) / 2f) * 6f) / 2f);
 
-		Rectangle vSeperator = new Rectangle(Battle.CAMERA_WIDTH - vVerticalSpaceBuffer * 2
-				- Card.CARD_WIDTH, 0, 3, Battle.CAMERA_HEIGHT);
+		Rectangle vSeperator = new Rectangle(BattleActivity.CAMERA_WIDTH - vVerticalSpaceBuffer * 2
+				- Card.CARD_WIDTH, 0, 3, BattleActivity.CAMERA_HEIGHT);
 		vSeperator.setColor(0, 0, 0);
 		this.attachChild(vSeperator);
 
 		for (int i = 0; i < mPlayerHandLocations.length; i++) {
-			mPlayerHandLocations[i] = new Rectangle(Battle.CAMERA_WIDTH
+			mPlayerHandLocations[i] = new Rectangle(BattleActivity.CAMERA_WIDTH
 					- vVerticalSpaceBuffer - Card.CARD_WIDTH, (Card.CARD_HEIGHT / 2) * i
 					+ vVerticalSpaceBuffer, Card.CARD_WIDTH, Card.CARD_HEIGHT);
 			mPlayerHandLocations[i].setColor(1f, 1f, 1f);
@@ -102,7 +102,7 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 	}
 
 	public interface IOnCardsSelectedListener {
-		public void onCardsSelected(ArrayList<Card> pPlayerCards);
+		public void onCardsSelected(Card[] pPlayerCards);
 	}
 
 	@Override
@@ -186,7 +186,11 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 						mCardsOnScreen.remove(i);
 						mCardsInHandCounter++;
 						if (mCardsInHandCounter == 5) {
-							mOnCardsSelectedListener.onCardsSelected(mCards);
+							Card[] cards = new Card[5];
+							for (int j = 0; j < mCards.size(); j++) {
+								cards[j] = mCards.get(j);
+							}
+							mOnCardsSelectedListener.onCardsSelected(cards);
 						}
 						break;
 					}
