@@ -35,7 +35,7 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 	private ArrayList<Card> mCardsOnScreen;
 
 	private int mCardsInHandCounter = 0;
-	
+
 	public GameCardSelector(BattleActivity pEngine, Scene pScene) {
 		super(0, 0, BattleActivity.CAMERA_WIDTH, BattleActivity.CAMERA_HEIGHT);
 		this.setColor(0, 0, 0, 0.8f);
@@ -45,8 +45,9 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 		mCards = new ArrayList<Card>();
 		float vVerticalSpaceBuffer = ((BattleActivity.CAMERA_HEIGHT - ((Card.CARD_HEIGHT) / 2f) * 6f) / 2f);
 
-		Rectangle vSeperator = new Rectangle(BattleActivity.CAMERA_WIDTH - vVerticalSpaceBuffer * 2
-				- Card.CARD_WIDTH, 0, 3, BattleActivity.CAMERA_HEIGHT);
+		Rectangle vSeperator = new Rectangle(BattleActivity.CAMERA_WIDTH
+				- vVerticalSpaceBuffer * 2 - Card.CARD_WIDTH, 0, 3,
+				BattleActivity.CAMERA_HEIGHT);
 		vSeperator.setColor(0, 0, 0);
 		this.attachChild(vSeperator);
 
@@ -119,7 +120,6 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 			@Override
 			public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
 				pOnAnimationFinishedListener.OnAnimationFinished();
-				
 
 			}
 		});
@@ -180,8 +180,9 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 						Log.v("BattleEngine", "Moving Card Over");
 						mCardsOnScreen.get(i).registerEntityModifier(
 								new MoveModifier(0.2f, mCardsOnScreen.get(i).getX(),
-										mPlayerHandLocations[mCardsInHandCounter].getX(), mCardsOnScreen.get(i)
-												.getY(), mPlayerHandLocations[mCardsInHandCounter].getY()));
+										mPlayerHandLocations[mCardsInHandCounter].getX(),
+										mCardsOnScreen.get(i).getY(),
+										mPlayerHandLocations[mCardsInHandCounter].getY()));
 						mCards.add(mCardsOnScreen.get(i));
 						mCardsOnScreen.remove(i);
 						mCardsInHandCounter++;
@@ -198,8 +199,12 @@ public class GameCardSelector extends Rectangle implements ICardSelector,
 			}
 		}
 
-		return true;
+		if (this.hasParent()) {
+			return true;
+		} else {
+			return false;
+		}
 	}
-	
+
 	private ArrayList<Card> mCards;
 }

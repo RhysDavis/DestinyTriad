@@ -16,7 +16,7 @@ public class EasyAI extends AI {
 	@Override
 	public void analyzeCard(IBattleCard pCard) {
 		// spam analysis to appear card is 'thinking'
-		for (int i = 0; i < 9000; i++) {
+		for (int i = 0; i < 1000; i++) {
 			for (int j = 0; j < 100; j++) {
 				
 			}

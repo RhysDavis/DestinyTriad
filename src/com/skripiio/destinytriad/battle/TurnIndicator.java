@@ -24,6 +24,7 @@ public class TurnIndicator extends Sprite {
 	public void onChangeTurn(
 			IOnActionFinishedListener pOnAnimationFinishedListener) {
 		Log.e("BattleEngine", "Turn Indicator - Doing turn change");
+		pOnAnimationFinishedListener.OnAnimationFinished();
 	}
 
 	private int firstPlayer;
@@ -33,24 +34,7 @@ public class TurnIndicator extends Sprite {
 		Random r = new Random();
 		firstPlayer = r.nextInt(2);
 		Log.e("BattleEngine", "Turn Indicator - Doing first turn");
-
-		MoveModifier rm = new MoveModifier(10f, 0f, 0f, 200f, 200f);
-
-		rm.addModifierListener(new IModifierListener<IEntity>() {
-
-			@Override
-			public void onModifierStarted(IModifier<IEntity> pModifier, IEntity pItem) {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void onModifierFinished(IModifier<IEntity> pModifier, IEntity pItem) {
-				pOnAnimationFinishedListener.OnAnimationFinished();
-
-			}
-		});
-		registerEntityModifier(rm);
+		pOnAnimationFinishedListener.OnAnimationFinished();
 	}
 
 	public int getPlayerTurn() {

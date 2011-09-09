@@ -1,5 +1,7 @@
 package com.skripiio.destinytriad.battle.player;
 
+import android.util.Log;
+
 import com.skripiio.destinytriad.battle.engine.BattleEngine;
 import com.skripiio.destinytriad.battle.engine.IBattlePlayer;
 import com.skripiio.destinytriad.battle.engine.IBoardSquare;
@@ -50,6 +52,8 @@ public class BattlePlayer implements IBattlePlayer {
 
 	/** Sets this players turn */
 	public void setTurn(boolean isTurn) {
+		Log.d("BattleEngine", "Battle Player " + mPlayerNumber + "! Setting your turn to "
+				+ isTurn);
 		isMyTurn = isTurn;
 	}
 
@@ -61,6 +65,8 @@ public class BattlePlayer implements IBattlePlayer {
 	/** Plays a card onto the battle engine */
 	@Override
 	public boolean playCard(int pCardNumInHand, int pSquareNumber) {
+		Log.d("BattleEngine", "Battle Player " + mPlayerNumber + " playing card "
+				+ pCardNumInHand + " to board square " + pSquareNumber);
 		mBattleEngine.placeCard(getCards()[pCardNumInHand], pSquareNumber);
 		return true;
 	}

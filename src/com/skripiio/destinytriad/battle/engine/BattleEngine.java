@@ -75,7 +75,7 @@ public class BattleEngine implements IBattle {
 
 			@Override
 			public void onCardsSelected(final Card[] pPlayerCards) {
-				onCardsSelected(pPlayerCards);
+				doCardsSelected(pPlayerCards);
 			}
 		});
 
@@ -89,7 +89,7 @@ public class BattleEngine implements IBattle {
 	}
 
 	/** Gets called after the cards have been selected */
-	public void onCardsSelected(final Card[] pPlayerCards) {
+	public void doCardsSelected(final Card[] pPlayerCards) {
 		// Attach cards to the scene
 		mBattle.runOnUpdateThread(new Runnable() {
 
@@ -98,6 +98,8 @@ public class BattleEngine implements IBattle {
 				for (int i = 0; i < pPlayerCards.length; i++) {
 					pPlayerCards[i].detachSelf();
 					mScene.attachChild(pPlayerCards[i]);
+					mScene.setOnAreaTouchListener(pPlayerCards[i]);
+					mScene.registerTouchArea(pPlayerCards[i]);
 				}
 			}
 		});
@@ -137,8 +139,9 @@ public class BattleEngine implements IBattle {
 			@Override
 			public void run() {
 				Log.v("BattleEngine", "Detaching Card Selector");
-				mCardSelector.detachSelf();
-
+				mScene.detachChild(mCardSelector);
+				mScene.unregisterTouchArea(mCardSelector);
+				
 			}
 		});
 
@@ -173,6 +176,7 @@ public class BattleEngine implements IBattle {
 		@Override
 		public void OnAnimationFinished() {
 			// Do players start turn sequence
+			Log.v("BattleEngine","Turn Beginning. Current Player: " + mCurrentPlayer);
 			isReadyForCard = true;
 			mPlayers[mCurrentPlayer].setTurn(true);
 

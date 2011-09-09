@@ -2,12 +2,15 @@ package com.skripiio.destinytriad.battle.engine;
 
 import java.util.ArrayList;
 
+import org.anddev.andengine.entity.scene.Scene.IOnAreaTouchListener;
+import org.anddev.andengine.entity.scene.Scene.ITouchArea;
 import org.anddev.andengine.entity.sprite.Sprite;
+import org.anddev.andengine.input.touch.TouchEvent;
 import org.anddev.andengine.opengl.texture.region.TextureRegion;
 
 import com.skripiio.destinytriad.card.Card;
 
-public class BoardSquare extends Sprite implements IBoardSquare {
+public class BoardSquare extends Sprite implements IBoardSquare, IOnAreaTouchListener {
 
 	public interface IOnBoardSquareSelectedListener {
 		public void onBoardSquareSelected(BoardSquare pBoardSquare);
@@ -74,6 +77,15 @@ public class BoardSquare extends Sprite implements IBoardSquare {
 
 	public void setOnBoardSelectedListener(IOnBoardSquareSelectedListener pListener) {
 		mListeners.add(pListener);
+	}
+
+	@Override
+	public boolean onAreaTouched(TouchEvent pSceneTouchEvent, ITouchArea pTouchArea,
+			float pTouchAreaLocalX, float pTouchAreaLocalY) {
+		for (int i = 0; i < mListeners.size(); i++) {
+			mListeners.get(i).onBoardSquareSelected(this);
+		}
+		return false;
 	}
 	
 }

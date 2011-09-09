@@ -14,13 +14,13 @@ public class Battle extends Scene {
 
 	public static final int PLAYER_USER = 0;
 	public static final int PLAYER_OPP = 1;
-	
+
 	/** All 9 of the board squares in the game */
 	private BoardSquare[] mBoardSquares;
 
 	private Rectangle[] player0Squares;
 	private Rectangle[] player1Squares;
-	
+
 	private BattleActivity mBattle;
 
 	public Battle(BattleActivity pBattle, RuleSet pRuleSet) {
@@ -58,15 +58,16 @@ public class Battle extends Scene {
 								- (Card.CARD_HEIGHT) + (i * Card.CARD_HEIGHT), Card.CARD_WIDTH,
 						Card.CARD_HEIGHT, j + 3 * i, mBattle.mCardBackTextureRegion);
 				attachChild(mBoardSquares[j + 3 * i]);
+				registerTouchArea(mBoardSquares[j + 3 * i]);
+				setOnAreaTouchListener(mBoardSquares[j + 3 * i]);
 			}
 		}
 
 		setBackground(new ColorBackground(1, 1, 1));
 
-		new BattleEngine(mBattle, mBoardSquares, pRuleSet,
-				mBattle.mTurnIndicator, this, new GameCardSelector(mBattle, this));
+		new BattleEngine(mBattle, mBoardSquares, pRuleSet, mBattle.mTurnIndicator, this,
+				new GameCardSelector(mBattle, this));
 
 	}
-
 
 }
